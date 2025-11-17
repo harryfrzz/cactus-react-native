@@ -56,7 +56,7 @@ const App = () => {
 - `onProgress` - Callback for download progress (0-1)
 
 **`init(params?: CactusInitParams): Promise<void>`**
-- Initializes the model for inference (downloads the model if needed)
+- Initializes the model for inference
 - `model` - Model slug to initialize (default: "qwen3-0.6")
 - `contextSize` - Context window size (default: 2048)
 

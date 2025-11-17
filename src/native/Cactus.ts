@@ -57,7 +57,7 @@ export class Cactus {
         totalTokens: parsed.total_tokens,
       };
     } catch {
-      throw new Error('Unable to parse completion response: ' + response);
+      throw new Error('Unable to parse completion response');
     }
   }
 

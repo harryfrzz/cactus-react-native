@@ -7,7 +7,9 @@ HybridCactusUtil::HybridCactusUtil() : HybridObject(TAG) {}
 
 std::shared_ptr<Promise<std::string>> HybridCactusUtil::registerApp(const std::string &encryptedData)
 {
-  return Promise<std::string>::async([encryptedData]() -> std::string {
+  return Promise<std::string>::async([this, encryptedData]() -> std::string {
+    std::lock_guard<std::mutex> lock(this->_mutex);
+
     const char *raw = register_app(encryptedData.c_str());
 
     if (raw == nullptr) {
@@ -22,14 +24,18 @@ std::shared_ptr<Promise<std::string>> HybridCactusUtil::registerApp(const std::s
 }
 
 std::shared_ptr<Promise<std::optional<std::string>>> HybridCactusUtil::getDeviceId() {
-  return Promise<std::optional<std::string>>::async([]() -> std::optional<std::string> {
+  return Promise<std::optional<std::string>>::async([this]() -> std::optional<std::string> {
+    std::lock_guard<std::mutex> lock(this->_mutex);
+
     const char* deviceId = get_device_id();
     return deviceId ? std::optional<std::string>(deviceId) : std::nullopt;
   });
 }
 
 std::shared_ptr<Promise<void>> HybridCactusUtil::setAndroidDataDirectory(const std::string &dataDir) {
-  return Promise<void>::async([dataDir]() -> void {
+  return Promise<void>::async([this, dataDir]() -> void {
+    std::lock_guard<std::mutex> lock(this->_mutex);
+
 #ifdef __ANDROID__
     set_android_data_directory(dataDir.c_str());
 #endif

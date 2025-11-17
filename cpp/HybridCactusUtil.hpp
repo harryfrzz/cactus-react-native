@@ -3,6 +3,8 @@
 
 #include "cactus_util.h"
 
+#include <mutex>
+
 namespace margelo::nitro::cactus
 {
 
@@ -16,6 +18,9 @@ public:
   std::shared_ptr<Promise<std::optional<std::string>>> getDeviceId() override;
   
   std::shared_ptr<Promise<void>> setAndroidDataDirectory(const std::string &dataDir) override;
+
+private:
+  std::mutex _mutex;
 };
 
 } // namespace margelo::nitro::cactus

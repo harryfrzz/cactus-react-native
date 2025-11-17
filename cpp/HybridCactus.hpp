@@ -1,8 +1,9 @@
 #pragma once
 #include "HybridCactusSpec.hpp"
 
-#include <mutex>
 #include "cactus_ffi.h"
+
+#include <mutex>
 
 namespace margelo::nitro::cactus
 {
