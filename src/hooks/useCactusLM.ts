@@ -68,8 +68,9 @@ export const useCactusLM = ({
 
     return () => {
       mounted = false;
+      cactusLM.stopDownload().catch(() => {});
     };
-  }, [model, contextSize, corpusDir]);
+  }, [model, contextSize, corpusDir, cactusLM]);
 
   useEffect(() => {
     return () => {

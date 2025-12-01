@@ -86,6 +86,7 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
         DispatchQueue.main.async {
           let pct = floor(min(max(0, p), 1) * 99) / 100
           if pct - lastPct >= 0.01 {
+            print("📥 Download progress: \(Int(pct * 100))% for \(model)")
             callback?(pct)
             lastPct = pct
           }
@@ -94,10 +95,14 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
 
       let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
       let task = session.downloadTask(with: url)
+      self.activeTasks[model] = task
+      print("📥 Started download, task stored for model: \(model)")
 
       callback?(0.0)
 
       let (fileURL, response) = try await delegate.awaitCompletion(for: task)
+      
+      self.activeTasks.removeValue(forKey: model)
 
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode)
@@ -118,6 +123,27 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
         try? FileManager.default.removeItem(at: fileURL)
 
         throw RuntimeError.error(withMessage: "Failed to download and unzip model: \(error)")
+      }
+    }
+  }
+
+  private var activeTasks: [String: URLSessionDownloadTask] = [:]
+
+  func stopDownload(model: String) throws -> Promise<Void> {
+    return Promise.async {
+       print("🛑 cancelDownload called for model: \(model)")
+      if let task = self.activeTasks[model] {
+        print("🛑 Cancelling active task")
+        task.cancel()
+        self.activeTasks.removeValue(forKey: model)
+
+        // TODO FIX - Don't remove downloaded model file after unmounting the hook
+        let modelURL = try self.modelURL(model: model)
+        if FileManager.default.fileExists(atPath: modelURL.path) {
+          try? FileManager.default.removeItem(at: modelURL)
+        }
+      } else {
+        print("🛑 No active task found for model")
       }
     }
   }

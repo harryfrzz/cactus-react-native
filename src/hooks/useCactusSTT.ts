@@ -65,8 +65,9 @@ export const useCactusSTT = ({
 
     return () => {
       mounted = false;
+      cactusSTT.stopDownload().catch(() => {});
     };
-  }, [model, contextSize]);
+  }, [model, contextSize, cactusSTT]);
 
   useEffect(() => {
     return () => {
