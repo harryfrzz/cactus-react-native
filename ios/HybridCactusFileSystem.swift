@@ -86,7 +86,6 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
         DispatchQueue.main.async {
           let pct = floor(min(max(0, p), 1) * 99) / 100
           if pct - lastPct >= 0.01 {
-            print("📥 Download progress: \(Int(pct * 100))% for \(model)")
             callback?(pct)
             lastPct = pct
           }
@@ -95,14 +94,12 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
 
       let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
       let task = session.downloadTask(with: url)
-      self.activeTasks[model] = task
-      print("📥 Started download, task stored for model: \(model)")
-
+      self.activeTask = task
       callback?(0.0)
 
       let (fileURL, response) = try await delegate.awaitCompletion(for: task)
       
-      self.activeTasks.removeValue(forKey: model)
+      self.activeTask = nil
 
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode)
@@ -127,17 +124,17 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
     }
   }
 
-  private var activeTasks: [String: URLSessionDownloadTask] = [:]
+  private var activeTask: URLSessionDownloadTask?
 
   func stopDownload(model: String) throws -> Promise<Void> {
     return Promise.async {
-      print("🛑 cancelDownload called for model: \(model)")
-      if let task = self.activeTasks[model] {
-        print("🛑 Cancelling active task")
+      //print("🛑 cancelDownload called for model: \(model)")
+      if let task = self.activeTask {
+        //print("🛑 Cancelling active task")
         task.cancel()
-        self.activeTasks.removeValue(forKey: model)
+        self.activeTask = nil
       } else {
-        print("🛑 No active task found for model")
+        //print("🛑 No active task found")
       }
     }
   }
@@ -165,7 +162,6 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
     if !FileManager.default.fileExists(atPath: cactusURL.path) {
       try FileManager.default.createDirectory(at: cactusURL, withIntermediateDirectories: true)
 
-      // Exclude from iCloud backup
       var resourceValues = URLResourceValues()
       resourceValues.isExcludedFromBackup = true
       try cactusURL.setResourceValues(resourceValues)
