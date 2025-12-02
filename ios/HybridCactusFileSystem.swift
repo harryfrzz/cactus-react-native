@@ -128,14 +128,9 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
 
   func stopDownload(model: String) throws -> Promise<Void> {
     return Promise.async {
-      //print("🛑 cancelDownload called for model: \(model)")
       if let task = self.activeTask {
-        //print("🛑 Cancelling active task")
         task.cancel()
         self.activeTask = nil
-      } else {
-        //print("🛑 No active task found")
-      }
     }
   }
   

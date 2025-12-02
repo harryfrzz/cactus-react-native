@@ -174,14 +174,10 @@ class HybridCactusFileSystem : HybridCactusFileSystemSpec() {
 
   override fun stopDownload(model: String): Promise<Unit> {
     return Promise.async {
-      println("🛑 cancelDownload called for model: $model")
       if (activeConnection != null) {
-        println("🛑 Cancelling active download")
         isCancelled = true
         activeConnection?.disconnect()
         activeConnection = null
-      } else {
-        println("🛑 No active download found")
       }
     }
   }
