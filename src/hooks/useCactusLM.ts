@@ -34,13 +34,20 @@ export const useCactusLM = ({
 
   const currentModelRef = useRef(model);
   const currentDownloadIdRef = useRef(0);
+  const cactusLMRef = useRef(cactusLM);
+
+  useEffect(() => {
+    cactusLMRef.current = cactusLM;
+  }, [cactusLM]);
 
   useEffect(() => {
     currentModelRef.current = model;
   }, [model]);
 
   useEffect(() => {
-    setCactusLM(new CactusLM({ model, contextSize, corpusDir }));
+    const newInstance = new CactusLM({ model, contextSize, corpusDir });
+    setCactusLM(newInstance);
+    cactusLMRef.current = newInstance;
 
     setCompletion('');
     setIsGenerating(false);
@@ -68,9 +75,9 @@ export const useCactusLM = ({
 
     return () => {
       mounted = false;
-      cactusLM.stopDownload().catch(() => {});
+      cactusLMRef.current.stopDownload().catch(() => {});
     };
-  }, [model, contextSize, corpusDir, cactusLM]);
+  }, [model, contextSize, corpusDir]);
 
   useEffect(() => {
     return () => {

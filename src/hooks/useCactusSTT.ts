@@ -31,13 +31,20 @@ export const useCactusSTT = ({
 
   const currentModelRef = useRef(model);
   const currentDownloadIdRef = useRef(0);
+  const cactusSTTRef = useRef(cactusSTT);
+
+  useEffect(() => {
+    cactusSTTRef.current = cactusSTT;
+  }, [cactusSTT]);
 
   useEffect(() => {
     currentModelRef.current = model;
   }, [model]);
 
   useEffect(() => {
-    setCactusSTT(new CactusSTT({ model, contextSize }));
+    const newInstance = new CactusSTT({ model, contextSize });
+    setCactusSTT(newInstance);
+    cactusSTTRef.current = newInstance;
 
     setTranscription('');
     setIsGenerating(false);
@@ -65,9 +72,9 @@ export const useCactusSTT = ({
 
     return () => {
       mounted = false;
-      cactusSTT.stopDownload().catch(() => {});
+      cactusSTTRef.current.stopDownload().catch(() => {});
     };
-  }, [model, contextSize, cactusSTT]);
+  }, [model, contextSize]);
 
   useEffect(() => {
     return () => {

@@ -131,17 +131,11 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
 
   func stopDownload(model: String) throws -> Promise<Void> {
     return Promise.async {
-       print("🛑 cancelDownload called for model: \(model)")
+      print("🛑 cancelDownload called for model: \(model)")
       if let task = self.activeTasks[model] {
         print("🛑 Cancelling active task")
         task.cancel()
         self.activeTasks.removeValue(forKey: model)
-
-        // TODO FIX - Don't remove downloaded model file after unmounting the hook
-        let modelURL = try self.modelURL(model: model)
-        if FileManager.default.fileExists(atPath: modelURL.path) {
-          try? FileManager.default.removeItem(at: modelURL)
-        }
       } else {
         print("🛑 No active task found for model")
       }
