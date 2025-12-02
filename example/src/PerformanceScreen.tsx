@@ -42,6 +42,7 @@ const PerformanceScreen = () => {
 
     downloadModel();
 
+    // Cleanup on unmount
     return () => {
       cactusLM.stopDownload();
       cactusLM.destroy();
