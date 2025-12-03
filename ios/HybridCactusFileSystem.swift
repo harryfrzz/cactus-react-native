@@ -131,6 +131,7 @@ class HybridCactusFileSystem: HybridCactusFileSystemSpec {
       if let task = self.activeTask {
         task.cancel()
         self.activeTask = nil
+      }
     }
   }
   
